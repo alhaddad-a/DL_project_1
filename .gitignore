@@ -1,0 +1,60 @@
+# Secrets and credentials
+.env
+.env.*
+*.pem
+*.key
+.databrickscfg
+
+# Databricks local / bundle
+.databricks/
+.databricks-bundle/
+bundle/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+.venv/
+venv/
+env/
+*.egg-info/
+.eggs/
+dist/
+build/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Jupyter / notebooks
+.ipynb_checkpoints/
+*.nbconvert.ipynb
+
+# Spark / Delta local artifacts
+spark-warehouse/
+derby.log
+metastore_db/
+_delta_log/
+*.delta/
+
+# Large or generated data (keep sample CSVs in datasets/ if tracked intentionally)
+*.parquet
+*.avro
+*.orc
+/tmp/
+temp/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editors
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+logs/

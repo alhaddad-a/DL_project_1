@@ -240,3 +240,9 @@ Upload the `scripts/` folder to your workspace and point each job task at the co
 - Notebooks target the **Databricks runtime**; paths use Unity Catalog volumes (`/Volumes/datalake/...`), not local disk.
 - The `datasets/` folder holds sample CSVs for reference and upload to the Bronze volume.
 - Sync notebooks to your Databricks workspace, configure the `datalake` catalog, then follow the pipeline run order above.
+
+---
+
+## License
+
+This project is licensed under the MIT License. See `LICENSE` for details.
