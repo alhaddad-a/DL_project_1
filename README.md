@@ -1,6 +1,6 @@
-# DL_project_1 — Medallion Data Lakehouse
+# Databricks Medallion Pipeline
 
-End-to-end **Bronze → Silver → Gold** pipeline on **Databricks** using **Unity Catalog**, **Delta Lake**, and **PySpark**. Raw CRM and ERP CSV files are ingested into a data lakehouse, cleaned and conformed in Silver, then modeled into star-schema dimensions and a sales fact table in Gold.
+End-to-end **Bronze → Silver → Gold** pipeline on **Databricks** using **Unity Catalog**, **Delta Lake**, and **PySpark**. CRM and ERP CSV sources are ingested into a data lakehouse, cleaned and conformed in Silver, then modeled into star-schema dimensions and a sales fact table in Gold.
 
 ---
 
@@ -53,7 +53,7 @@ All objects live under the Unity Catalog **`datalakehouse`**.
 ## Project structure
 
 ```
-DL_project_1/
+databricks-medallion-pipeline/
 ├── datasets/                         # Sample source files (upload to Databricks volume)
 │   ├── source_crm/
 │   │   ├── cust_info.csv
