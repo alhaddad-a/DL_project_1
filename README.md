@@ -1,6 +1,6 @@
 # DL_project_1 — Medallion Data Lakehouse
 
-End-to-end **Bronze → Silver → Gold** pipeline on **Databricks** using **Unity Catalog**, **Delta Lake**, and **PySpark**. Raw CRM and ERP CSV files are ingested into a lakehouse, cleaned and conformed in Silver, then modeled into star-schema dimensions and a sales fact table in Gold.
+End-to-end **Bronze → Silver → Gold** pipeline on **Databricks** using **Unity Catalog**, **Delta Lake**, and **PySpark**. Raw CRM and ERP CSV files are ingested into a data lakehouse, cleaned and conformed in Silver, then modeled into star-schema dimensions and a sales fact table in Gold.
 
 ---
 
@@ -13,7 +13,7 @@ This project implements a classic **medallion architecture** for integrating two
 | **CRM** | `cust_info`, `prd_info`, `sales_details` | Customers, products, and sales transactions |
 | **ERP** | `CUST_AZ12`, `LOC_A101`, `PX_CAT_G1V2` | Customer attributes, locations, product categories |
 
-All objects live under the Unity Catalog **`datalake`**.
+All objects live under the Unity Catalog **`datalakehouse`**.
 
 ---
 
@@ -27,15 +27,15 @@ All objects live under the Unity Catalog **`datalake`**.
          └───────────┬───────────┘
                      ▼
          ┌───────────────────────┐
-         │  BRONZE (raw ingest)  │  datalake.bronze.*
+         │  BRONZE (raw ingest)  │  datalakehouse.bronze.*
          └───────────┬───────────┘
                      ▼
          ┌───────────────────────┐
-         │ SILVER (clean/conform)│  datalake.silver.*
+         │ SILVER (clean/conform)│  datalakehouse.silver.*
          └───────────┬───────────┘
                      ▼
          ┌───────────────────────┐
-         │ GOLD (dimensional)    │  datalake.gold.*
+         │ GOLD (dimensional)    │  datalakehouse.gold.*
          │  dim_customers          │
          │  dim_products           │
          │  fact_sales             │
@@ -44,9 +44,9 @@ All objects live under the Unity Catalog **`datalake`**.
 
 | Layer | Schema | Purpose |
 |-------|--------|---------|
-| **Bronze** | `datalake.bronze` | Raw CSV ingest as managed Delta tables |
-| **Silver** | `datalake.silver` | Trimming, typing, normalization, column renaming |
-| **Gold** | `datalake.gold` | Business-ready star schema for analytics |
+| **Bronze** | `datalakehouse.bronze` | Raw CSV ingest as managed Delta tables |
+| **Silver** | `datalakehouse.silver` | Trimming, typing, normalization, column renaming |
+| **Gold** | `datalakehouse.gold` | Business-ready star schema for analytics |
 
 ---
 
@@ -83,7 +83,7 @@ DL_project_1/
 ## Prerequisites
 
 - Databricks workspace with **Unity Catalog** enabled
-- Permission to create catalog `datalake`, schemas, and volumes
+- Permission to create catalog `datalakehouse`, schemas, and volumes
 - A cluster or SQL warehouse for notebook execution
 - Source CSV files uploaded to the Bronze volume (see Setup below)
 
@@ -91,31 +91,31 @@ DL_project_1/
 
 ## Setup
 
-### 1. Initialize the lakehouse
+### 1. Initialize the data lakehouse
 
 Run `scripts/init_lakehouse.ipynb`:
 
-- Selects catalog `datalake`
+- Selects catalog `datalakehouse`
 - Creates schemas: `bronze`, `silver`, `gold`
-- Creates volume `datalake.bronze.source_systems` for raw files
+- Creates volume `datalakehouse.bronze.source_systems` for raw files
 
 ### 2. Upload source files
 
 Copy the contents of `datasets/` into the Databricks volume:
 
 ```
-/Volumes/datalake/bronze/source_systems/source_crm/
-/Volumes/datalake/bronze/source_systems/source_erp/
+/Volumes/datalakehouse/bronze/source_systems/source_crm/
+/Volumes/datalakehouse/bronze/source_systems/source_erp/
 ```
 
 | System | File | Bronze table |
 |--------|------|--------------|
-| CRM | `cust_info.csv` | `datalake.bronze.crm_cust_info` |
-| CRM | `prd_info.csv` | `datalake.bronze.crm_prd_info` |
-| CRM | `sales_details.csv` | `datalake.bronze.crm_sales_details` |
-| ERP | `CUST_AZ12.csv` | `datalake.bronze.erp_cust_az12` |
-| ERP | `LOC_A101.csv` | `datalake.bronze.erp_loc_a101` |
-| ERP | `PX_CAT_G1V2.csv` | `datalake.bronze.erp_px_cat_g1v2` |
+| CRM | `cust_info.csv` | `datalakehouse.bronze.crm_cust_info` |
+| CRM | `prd_info.csv` | `datalakehouse.bronze.crm_prd_info` |
+| CRM | `sales_details.csv` | `datalakehouse.bronze.crm_sales_details` |
+| ERP | `CUST_AZ12.csv` | `datalakehouse.bronze.erp_cust_az12` |
+| ERP | `LOC_A101.csv` | `datalakehouse.bronze.erp_loc_a101` |
+| ERP | `PX_CAT_G1V2.csv` | `datalakehouse.bronze.erp_px_cat_g1v2` |
 
 ---
 
@@ -151,13 +151,13 @@ Execute notebooks in this sequence (manually or as a Databricks Job):
 
 `gold_orchestration.ipynb` runs notebooks in dependency order:
 
-1. **`gold_dim_customers`** → `datalake.gold.dim_customers`  
+1. **`gold_dim_customers`** → `datalakehouse.gold.dim_customers`  
    CRM customers enriched with ERP demographics and location.
 
-2. **`gold_dim_products`** → `datalake.gold.dim_products`  
+2. **`gold_dim_products`** → `datalakehouse.gold.dim_products`  
    CRM products joined to ERP categories; surrogate `product_key`.
 
-3. **`gold_fact_sales`** → `datalake.gold.fact_sales`  
+3. **`gold_fact_sales`** → `datalakehouse.gold.fact_sales`  
    Sales lines joined to dimensions on `customer_id` and `product_number`.
 
 ---
@@ -204,9 +204,9 @@ SELECT
   c.country,
   p.product_line,
   SUM(f.sales_amount) AS total_sales
-FROM datalake.gold.fact_sales f
-JOIN datalake.gold.dim_customers c ON f.customer_key = c.customer_key
-JOIN datalake.gold.dim_products p ON f.product_key = p.product_key
+FROM datalakehouse.gold.fact_sales f
+JOIN datalakehouse.gold.dim_customers c ON f.customer_key = c.customer_key
+JOIN datalakehouse.gold.dim_products p ON f.product_key = p.product_key
 GROUP BY 1, 2
 ORDER BY total_sales DESC;
 ```
@@ -231,15 +231,15 @@ Upload the `scripts/` folder to your workspace and point each job task at the co
 - **Databricks** — notebooks, `dbutils`, `%sql`
 - **Apache Spark / PySpark** — transformations
 - **Delta Lake** — Silver and Gold table format
-- **Unity Catalog** — governance (`datalake` catalog)
+- **Unity Catalog** — governance (`datalakehouse` catalog)
 
 ---
 
 ## Local development notes
 
-- Notebooks target the **Databricks runtime**; paths use Unity Catalog volumes (`/Volumes/datalake/...`), not local disk.
+- Notebooks target the **Databricks runtime**; paths use Unity Catalog volumes (`/Volumes/datalakehouse/...`), not local disk.
 - The `datasets/` folder holds sample CSVs for reference and upload to the Bronze volume.
-- Sync notebooks to your Databricks workspace, configure the `datalake` catalog, then follow the pipeline run order above.
+- Sync notebooks to your Databricks workspace, configure the `datalakehouse` catalog, then follow the pipeline run order above.
 
 ---
 
